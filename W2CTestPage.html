@@ -1,64 +1,156 @@
-<html>
-  <head>
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-	<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  </head>
-  <body>
-	<div class="container-fluid">
-		<div class="row-fluid">
-			<div class="col-md-12">
-				<h1 class="text-center">Five9 Web2Campaign Test Page</h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Five9 Web2Campaign Test Page</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		.input-style {
+			@apply border border-gray-400 bg-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400;
+		}
+	</style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center">
+	<div class="w-full max-w-4xl bg-white rounded-xl shadow-lg p-10">
+		<h1 class="text-3xl font-bold text-center mb-10 text-blue-700">Five9 Web2Campaign Test Page</h1>
+
+		<form action="https://api.five9.com/web2campaign/AddToList" method="POST" class="space-y-6">
+			<!-- Field container -->
+			<div id="formFields" class="space-y-6"></div>
+
+			<div class="text-center pt-6">
+				<button type="submit"
+					class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded transition">
+					Submit
+				</button>
 			</div>
-		</div>
-		<div class="row-fluid">
-			<div class="col-md-6 col-md-offset-3">
-				<form class="form-horizontal" role="form" name="web2campaign" action="http://api.five9.com/web2campaign/AddToList" method="POST">
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="F9domain">F9domain</label>
-    						<div class="col-sm-10"><input class="form-control" type="text" name="F9domain" id="F9domain"/></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="F9list">F9list</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="F9list" id="F9list"/></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="F9key">F9key</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="F9key" id="F9key"/></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="number1">number1</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="number1" id="number1"/></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="first_name">first_name</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="first_name" id="first_name"/></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="last_name">last_name</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="last_name" id="last_name" /></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="street">street</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="street" id="street" /></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="city">city</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="city" id="city" /></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="state">state</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="state" id="state" /></div>
-					</div>
-					<div class="form-group">
- 						<label class="col-sm-2 control-label" for="zip">zip</label>
-						<div class="col-sm-10"><input class="form-control" type="text" name="zip" id="zip" /></div>
-					</div>
-					<p class="text-center"><button type="submit" class="btn btn-default">Submit</button></p>
-				 </form> 
-			</div>
+		</form>
+
+		<!-- Documentation link -->
+		<p class="text-sm text-gray-600 mt-8 text-center">
+			Refer to the
+			<a href="https://documentation.five9.com/bundle/api-web2campaign/page/web2campaign/landing-web2campaign.htm"
+				class="text-blue-600 hover:underline hover:text-blue-800 transition">
+				official documentation
+			</a>
+			for more details.
+		</p>
+
+		<!-- Response display -->
+		<div id="responseContainer" class="hidden mt-10">
+			<div id="responseStatus" class="text-white text-sm font-semibold px-4 py-2 rounded-t-md"></div>
+			<iframe id="responseFrame" class="w-full h-64 border rounded-b-md"></iframe>
 		</div>
 	</div>
-  </body>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+			const form = document.querySelector("form");
+			const responseContainer = document.getElementById("responseContainer");
+			const responseStatus = document.getElementById("responseStatus");
+			const responseFrame = document.getElementById("responseFrame");
+			const formFields = document.getElementById("formFields");
+
+			const fields = [
+				{ id: "F9domain", label: "F9 Domain", description: "Your Five9 domain (e.g., company.five9.com)" },
+				{ id: "F9list", label: "F9 List", description: "The list name in your Five9 account" },
+				{ id: "number1", label: "Phone Number", description: "Contact's phone number (digits only)" },
+				{ id: "first_name", label: "First Name", description: "Contact's first name" },
+				{ id: "last_name", label: "Last Name", description: "Contact's last name" },
+				{ id: "street", label: "Street Address", description: "Street name and number" },
+				{ id: "city", label: "City", description: "City where the contact resides" },
+				{ id: "state", label: "State", description: "Two-letter state code (e.g., CA, TX)" },
+				{ id: "zip", label: "ZIP Code", description: "5-digit postal code" }
+			];
+
+			// Render standard fields
+			fields.forEach(({ id, label, description }) => {
+				formFields.innerHTML += `
+				  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+					<label for="${id}" class="font-medium text-gray-700 pt-2">${label}</label>
+					<div class="md:col-span-2">
+					  <input type="text" id="${id}" name="${id}" class="input-style" placeholder="${label}" />
+					  <p class="text-xs text-gray-500 mt-1">${description}</p>
+					</div>
+				  </div>
+				`;
+			});
+
+			// Add dynamic F9key fields section
+			formFields.innerHTML += `
+			  <div id="f9keySection" class="space-y-4">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+				  <label class="font-medium text-gray-700 pt-2">F9 Key</label>
+				  <div class="md:col-span-2 space-y-2" id="f9keyInputs">
+					<div class="flex gap-2">
+					  <input type="text" name="F9key" placeholder="F9 Key" class="input-style" />
+					  <button type="button" class="text-red-500 hover:text-red-700 font-bold" onclick="this.parentElement.remove()">✕</button>
+					</div>
+					<p class="text-xs text-gray-500 mt-1">F9 Key fields combine to create the 'unique together constraint' that will create or update a target record in Five9.</p>
+				  </div>
+				</div>
+				<div class="md:col-span-3 text-right">
+				  <button type="button" id="addF9key" class="text-blue-600 hover:underline text-sm">+ Add another F9 Key</button>
+				</div>
+			  </div>
+			`;
+
+			// Add new F9key input handler
+			document.getElementById("addF9key").addEventListener("click", () => {
+				const container = document.getElementById("f9keyInputs");
+				const wrapper = document.createElement("div");
+				wrapper.className = "flex gap-2 mt-2";
+				wrapper.innerHTML = `
+				  <input type="text" name="F9key" placeholder="F9 Key" class="input-style" />
+				  <button type="button" class="text-red-500 hover:text-red-700 font-bold" onclick="this.parentElement.remove()">✕</button>
+				`;
+				container.appendChild(wrapper);
+			});
+
+			// Form submit handler
+			form.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				const formData = new FormData(form);
+				const params = new URLSearchParams(formData);
+
+				try {
+					const response = await fetch(form.action, {
+						method: "POST",
+						headers: { "Content-Type": "application/x-www-form-urlencoded" },
+						body: params
+					});
+
+					const text = await response.text();
+					const isSuccess = response.status < 400;
+					const colorBase = isSuccess ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+					const borderColor = isSuccess ? 'border-green-300' : 'border-red-300';
+
+					responseContainer.classList.remove("hidden");
+					responseContainer.classList.add("border", borderColor);
+
+					responseStatus.textContent = `Response Code: ${response.status}`;
+					responseStatus.className = `text-sm font-semibold px-4 py-2 ${colorBase} border-b ${borderColor}`;
+
+					const html = `
+						<html>
+						  <head><base target="_blank"></head>
+						  <body style="font-family: sans-serif; padding: 1rem;">${text}</body>
+						</html>
+					`;
+					responseFrame.srcdoc = html;
+
+				} catch (err) {
+					responseContainer.classList.remove("hidden");
+					responseStatus.textContent = "An error occurred while submitting the form.";
+					responseStatus.className = "text-sm font-semibold px-4 py-2 bg-red-100 text-red-800 border-b border-red-300";
+					responseFrame.srcdoc = `<html><body style="font-family: sans-serif; padding: 1rem; color: red;">${err}</body></html>`;
+				}
+			});
+		});
+	</script>
+</body>
+
 </html>
